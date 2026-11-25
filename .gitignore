@@ -225,3 +225,5 @@ __marimo__/
 
 # Streamlit
 .streamlit/secrets.toml
+# Ticari/özel materyaller — public repoya gitmez, yalnızca lokal
+docs/pitch/
