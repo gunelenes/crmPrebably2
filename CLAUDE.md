@@ -103,11 +103,20 @@ kendi boş Postgres'i ve kendi `JWT_SECRET`'ı var, canlı veri taşınmadı.
 - Backend env: `DATABASE_URL=${{Postgres.DATABASE_URL}}`, `JWT_SECRET`, `PUBLIC_BASE_URL`,
   `ALLOWED_ORIGINS` (frontend domaini + `http://localhost:5173`), `OWNER_USERNAME=admin`.
   Frontend env: `VITE_API_URL=<backend>/api`.
-- **Instagram / WhatsApp / Meta değişkenleri bilerek boş.** Yeni bir Meta hesabından yeni anahtarlar
-  alınacak (`INSTAGRAM_TOKEN`, `INSTAGRAM_APP_ID`, `INSTAGRAM_APP_SECRET`, `WEBHOOK_VERIFY_TOKEN`,
-  `INSTAGRAM_PAGE_ID`: kodda eski hesabın ID'si default olarak duruyor, `WHATSAPP_*`,
-  `META_ACCESS_TOKEN`). Webhook adresi: `<backend>/api/webhook`. Bunlar olmadan DM, IG senkronu
-  ve reklam analizi çalışmaz; geri kalan her şey çalışır.
+- **Instagram bağlı (2026-11-25):** Yeni Meta uygulaması, "Instagram API with Instagram Login".
+  `INSTAGRAM_TOKEN` (`IGAA…` ile başlar; `EAA…` Facebook token'ıdır ve graph.instagram.com'da
+  çalışmaz, 60 gün geçerli), `INSTAGRAM_APP_ID`, `INSTAGRAM_APP_SECRET` (32 hex; webhook imza
+  doğrulaması bununla yapılır), `INSTAGRAM_PAGE_ID` (Meta panelinde hesabın altındaki ID =
+  `/me?fields=user_id`), `WEBHOOK_VERIFY_TOKEN` girili. Webhook: `<backend>/api/webhook`.
+  Uygulama geliştirme modunda: yalnızca Instagram Test Kullanıcısı rolündeki hesapların DM'leri
+  gelir; herkes için Meta App Review (`instagram_business_manage_messages`) gerekir.
+- 2026-11-25'te tüm mesaj/konuşma/kişi kayıtları silindi ve `SYNC_CUTOFF_DATE=2026-11-25T12:12:48`
+  (UTC) yapıldı: sistem bu andan itibaren çalışıyor, senkron daha eski DM'leri çekmez.
+- **Henüz yok:** `WHATSAPP_*` ve geçerli bir `META_ACCESS_TOKEN` (girilen token Ağustos 2026'da
+  dolmuş). Reklam için önerilen: Business Manager sistem kullanıcısı token'ı (süresiz, `ads_read`).
+- **Reklam sayfalarında TEST verisi var** (`act_1187157688883384`, `backend/seed_test_ads.py` ile
+  üretildi; `ad_spend.source='test'`, kampanya id'leri `test_` önekli, `registrations.source='test'`).
+  Gerçek token gelince: `python seed_test_ads.py act_1187157688883384 --temizle`.
 - İlk kullanıcı `admin` (admin + owner). Parola repoda tutulmaz.
 - Lokal geliştirme bu ortamın Postgres'ine bağlanır: Postgres servisinde bir TCP proxy açık;
   `backend/.env` içindeki `DATABASE_URL` bu public adresi kullanır (değer git'te yok, Railway
