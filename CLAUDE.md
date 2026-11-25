@@ -18,6 +18,8 @@ Arayüz metinleri ve proje yazışmaları Türkçe.
   (`crm-prebably-production.up.railway.app`) çalışıyor. Enes bu repoya bağlı **yeni bir Railway
   projesi** kuracak. Adımlar aşağıda, "Yeni Railway projesine geçiş" bölümünde. Bir adım
   tamamlandığında bu bölümü güncelle.
+- **Test ortamı kuruldu (2026-11-25):** Railway'de ayrı bir `CrmPrebably2` projesi var. Canlı
+  değil; ayrıntılar aşağıda "Railway test ortamı (CrmPrebably2)" bölümünde.
 
 ### Ticari bağlam
 Ürün tek bir müşteriye (bir eğitim akademisi) özel yazıldı. Hedef, ajanslar üzerinden
@@ -83,6 +85,36 @@ Sırayla:
        senkronlar iki DB'ye ayrı ayrı yazar ve veri ikiye bölünür.
 9. [ ] `frontend/src/api.js` ve `backend/app/config.py` (`PUBLIC_BASE_URL`) içindeki eski domain
        fallback'lerini yeni domainle değiştir.
+
+## Railway test ortamı (CrmPrebably2)
+2026-11-25'te Simge'nin bilgisayarından kuruldu. Canlı `Crm-Prebably` projesinden **tamamen ayrı**:
+kendi boş Postgres'i ve kendi `JWT_SECRET`'ı var, canlı veri taşınmadı.
+- Hesap: Enes Gunel'in Railway hesabı. Proje: `CrmPrebably2`. Servisler: `Postgres`, `backend`, `frontend`.
+- Frontend: `https://frontend-production-f9a44400.up.railway.app`
+- Backend: `https://backend-production-fa179137.up.railway.app`
+- **Deploy GitHub'a bağlı değil.** Kod CLI ile yüklenir; `main`'e push bu ortamı güncellemez.
+  Repo kökünden:
+  ```bash
+  railway up ./backend  --path-as-root --service backend  --ci
+  railway up ./frontend --path-as-root --service frontend --ci
+  ```
+  GitHub otomatik deploy'a geçmek için: `railway service source connect --repo gunelenes/crmPrebably2 --branch main --service <servis>`
+  (her servis için root dir ayrıca `backend` / `frontend` olarak ayarlanmalı).
+- Backend env: `DATABASE_URL=${{Postgres.DATABASE_URL}}`, `JWT_SECRET`, `PUBLIC_BASE_URL`,
+  `ALLOWED_ORIGINS` (frontend domaini + `http://localhost:5173`), `OWNER_USERNAME=admin`.
+  Frontend env: `VITE_API_URL=<backend>/api`.
+- **Instagram / WhatsApp / Meta değişkenleri bilerek boş.** Yeni bir Meta hesabından yeni anahtarlar
+  alınacak (`INSTAGRAM_TOKEN`, `INSTAGRAM_APP_ID`, `INSTAGRAM_APP_SECRET`, `WEBHOOK_VERIFY_TOKEN`,
+  `INSTAGRAM_PAGE_ID`: kodda eski hesabın ID'si default olarak duruyor, `WHATSAPP_*`,
+  `META_ACCESS_TOKEN`). Webhook adresi: `<backend>/api/webhook`. Bunlar olmadan DM, IG senkronu
+  ve reklam analizi çalışmaz; geri kalan her şey çalışır.
+- İlk kullanıcı `admin` (admin + owner). Parola repoda tutulmaz.
+- Lokal geliştirme bu ortamın Postgres'ine bağlanır: Postgres servisinde bir TCP proxy açık;
+  `backend/.env` içindeki `DATABASE_URL` bu public adresi kullanır (değer git'te yok, Railway
+  Postgres değişkenlerinden kurulur). Lokal `.env`'deki `JWT_SECRET`, Railway backend'iyle **aynı**
+  olmalı; yoksa DB'deki şifreli mail ayarları bir tarafta çözülemez.
+- Windows'ta Railway CLI `npm i -g @railway/cli` ile kurulu. Node kurulmadan önce açılmış
+  terminaller `railway`/`node` komutlarını bulamaz; terminali yeniden aç.
 
 ## Komutlar
 - Backend: `uvicorn app.main:socket_app --reload` (`backend/` içinde). Giriş noktası `socket_app`;
