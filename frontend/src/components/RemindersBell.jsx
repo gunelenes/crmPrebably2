@@ -73,7 +73,9 @@ export default function RemindersBell({ expanded = true }) {
       </button>
 
       {open && (
-        <div className="absolute left-full ml-2 bottom-0 w-80 z-50 max-h-[80vh] overflow-hidden rounded-2xl
+        <div className="absolute z-50 overflow-hidden rounded-2xl
+          left-0 bottom-full mb-2 w-[min(20rem,calc(100vw-2rem))] max-h-[60dvh]
+          md:left-full md:bottom-0 md:mb-0 md:ml-2 md:w-80 md:max-h-[80vh]
           bg-white/95 dark:bg-slate-900/95 backdrop-blur-2xl
           border border-slate-200/60 dark:border-white/10
           shadow-2xl shadow-indigo-500/20 flex flex-col">
